@@ -7,10 +7,17 @@
 	padding: 5em;
 }
 .button-start {
-	background: rgb(28, 184, 65); /* this is a green */
+	background: lightgreen; /* this is a green */
 }
 .button-stop {
-	background: rgb(202, 60, 60); /* this is a maroon */
+	background: orangered; /* this is a maroon */
+}
+#risposta {
+	margin-top: 4em;
+	margin-bottom: 4em;
+	margin-left: auto;
+	margin-right: auto;
+	width: 14em;
 }
 #operazione {
 	font-size: xx-large;
@@ -24,7 +31,7 @@
 	width: 1em;
 }
 #progress .done {
-	background-color: green;
+	background-color: lightgreen;
 }
 
 
