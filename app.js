@@ -57,7 +57,7 @@ function update_ui() {
 	switch ( status ) {
 		case STATUS.EMPTY:
 			risposta.innerHTML = '';
-			values.style.display = 'block';
+			values.style.display = 'inline';
 			play_pause.innerHTML = '<i class="fa fa-spinner fa-pulse"></i>';
 			play_pause.className = 'pure-button pure-button-disabled';
 			reset.innerHTML = '<i class="fa fa-spinner fa-pulse"></i>';
@@ -65,7 +65,7 @@ function update_ui() {
 		break;
 		case STATUS.STOP:
 			risposta.innerHTML = '';
-			values.style.display = 'block';
+			values.style.display = 'inline';
 			play_pause.innerHTML = '<i class="fa fa-play"></i>';
 			play_pause.className = 'pure-button button-start';
 			reset.innerHTML = '<i class="fa fa-stop"></i>';
