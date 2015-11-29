@@ -5,6 +5,7 @@ var pairs = [];
 var time_out_id;
 var voices;
 var button = document.getElementById( 'button' );
+var term_x, term_y, term_xy;
 
 if ( 'speechSynthesis' in window ) {
 	window.speechSynthesis.onvoiceschanged = get_voices;
@@ -97,6 +98,54 @@ function stop() {
 	pairs = [];
 }
 
+function step() {
+	if ( ! running ) return;
+	console.log( 'step ' + index );
+
+	if ( index >= pairs.length ) {
+		toggle();
+		return;
+	}
+
+	var x = pairs[ index ][ 0 ];
+	var y = pairs[ index ][ 1 ];
+	term_x.innerHTML = x;
+	term_y.innerHTML = y;
+	term_xy.innerHTML = '';
+
+	function speak( text, next ) {
+		if ( ! running ) return;
+		if ( voce == -2 ) next();
+		else {
+			window.speechSynthesis.cancel();
+			var ssu = new SpeechSynthesisUtterance( text );
+			ssu.voice = voices[ voce ];
+			window.speechSynthesis.speak( ssu );
+			function waitssu() {
+				if ( ! window.speechSynthesis.speaking ) {
+					next();
+					return;
+				}
+				window.setTimeout( waitssu, 200 );
+			}
+			waitssu();
+		}
+	}
+
+	function result() {
+		if ( ! running ) return;
+		time_out_id = window.setTimeout( function() {
+			var td = document.getElementById( 'rc-' + x + '-' + y )
+			if ( td ) td.className = 'done';
+			term_xy.innerHTML = x * y;
+			index++;
+			speak( x * y, function() { window.setTimeout( step, pausa_step ); } );
+		}, pausa_risposta );
+	}
+
+	speak( x + ' per ' + y, result );
+}
+
 function start() {
 	console.log( 'start' );
 	running = true;
@@ -147,54 +196,6 @@ function start() {
 	var term_xy = document.getElementById( 'xy' );
 
 	var index = 0;
-	function step() {
-		if ( ! running ) return;
-		console.log( 'step ' + index );
-
-		if ( index >= pairs.length ) {
-			toggle();
-			return;
-		}
-
-		var x = pairs[ index ][ 0 ];
-		var y = pairs[ index ][ 1 ];
-		term_x.innerHTML = x;
-		term_y.innerHTML = y;
-		term_xy.innerHTML = '';
-
-		function speak( text, onend ) {
-			if ( ! running ) return;
-			if ( voce == -2 ) onend();
-			else {
-				window.speechSynthesis.cancel();
-				var ssu = new SpeechSynthesisUtterance( text );
-				ssu.voice = voices[ voce ];
-				window.speechSynthesis.speak( ssu );
-				function waitssu() {
-					if ( ! window.speechSynthesis.speaking ) {
-						onend();
-						return;
-					}
-					window.setTimeout( waitssu, 200 );
-				}
-				waitssu();
-			}
-		}
-
-		function result() {
-			if ( ! running ) return;
-			time_out_id = window.setTimeout( function() {
-				var td = document.getElementById( 'rc-' + x + '-' + y )
-				if ( td ) td.className = 'done';
-				term_xy.innerHTML = x * y;
-				index++;
-				speak( x * y, function() { window.setTimeout( step, pausa_step ); } );
-			}, pausa_risposta );
-		}
-
-		speak( x + ' per ' + y, result );
-
-	}
 	step();
 }
 
