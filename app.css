@@ -13,11 +13,7 @@
 	background: orangered; /* this is a maroon */
 }
 #risposta {
-	margin-top: 4em;
-	margin-bottom: 4em;
-	margin-left: auto;
-	margin-right: auto;
-	width: 14em;
+	margin-top: 2em;
 }
 #operazione {
 	font-size: xx-large;

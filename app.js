@@ -1,15 +1,24 @@
 function onload() {
 
-var running = false;
-var pairs = [];
-var time_out_id;
+var play_pause = document.getElementById( 'play_pause' );
+var reset = document.getElementById( 'reset' );
+var risposta = document.getElementById( 'risposta' );
+var form = document.getElementById( 'form' );
+
 var voices;
-var button = document.getElementById( 'button' );
-var term_x, term_y, term_xy;
+
+var STATUS = { EMPTY: 0, STOP: 1, PLAY: 2, PAUSE: 3 }; 
+var status = STATUS.STOP;
+
+var time_out_id, term_x, term_y, term_xy, index, pausa_risposta, pausa_step, voce;
+var pairs = [];
 
 if ( 'speechSynthesis' in window ) {
-	window.speechSynthesis.onvoiceschanged = get_voices;
-	function get_voices() {
+	if ( 'onvoiceschanged' in window.speechSynthesis )
+		window.speechSynthesis.onvoiceschanged = get_voices;
+	else
+		get_voices();
+	function get_voices( direct ) {
 		if ( voices && voices.length > 0 ) return;
 		voices = window.speechSynthesis.getVoices().filter(
 				function( voice ) {
@@ -20,7 +29,14 @@ if ( 'speechSynthesis' in window ) {
 					);
 				}
 		);
-		console.log( 'got ' + voices.length + ' voice(s)' );
+		console.log( 'got ' + voices.length + ' voice(s), direct ' + direct );
+		setup_ui();
+	};
+} else
+	setup_ui();
+
+function setup_ui() {
+	if ( voices && voices.length > 0 ) {
 		var select = document.getElementById( 'voce' );
 		for ( var i = 0; i < voices.length; i++ ) {
 			var option = document.createElement( 'option' );
@@ -28,30 +44,76 @@ if ( 'speechSynthesis' in window ) {
 			option.innerHTML = voices[ i ].name;
 			select.appendChild( option );
 		}
-		button.addEventListener( 'click', toggle, false );
-		button.className = 'pure-button button-start';
-		console.log( 'voice, activated' );
-	};
-	get_voices();
-} else {
-	document.getElementById( 'select_voce' ).remove();
-	button.addEventListener( 'click', toggle, false );
-	button.className = 'pure-button button-start';
+	} else
+		document.getElementById( 'select_voce' ).remove();
+	play_pause.addEventListener( 'click', click_play_pause, false );
+	reset.addEventListener( 'click', click_reset, false );
+	status = STATUS.STOP;
+	update_buttons();
 }
 
-function toggle( event ) {
+function update_buttons() {
+	console.log( 'status ' + status );
+	switch ( status ) {
+		case STATUS.EMPTY:
+			risposta.innerHTML = '';
+			form.style.visibility = 'visible';
+			play_pause.innerHTML = '<i class="fa fa-spinner fa-pulse"></i>';
+			play_pause.className = 'pure-button pure-button-disabled';
+			reset.innerHTML = '<i class="fa fa-spinner fa-pulse"></i>';
+			reset.className = 'pure-button pure-button-disabled';
+		break;
+		case STATUS.STOP:
+			risposta.innerHTML = '';
+			form.style.visibility = 'visible';
+			play_pause.innerHTML = '<i class="fa fa-play"></i>';
+			play_pause.className = 'pure-button button-start';
+			reset.innerHTML = '<i class="fa fa-stop"></i>';
+			reset.className = 'pure-button pure-button-disabled';
+		break;
+		case STATUS.PLAY:
+			form.style.visibility = 'hidden';
+			play_pause.innerHTML = '<i class="fa fa-pause"></i>';
+			play_pause.className = 'pure-button button-start';
+			reset.innerHTML = '<i class="fa fa-stop"></i>';
+			reset.className = 'pure-button button-stop';
+		break;
+		case STATUS.PAUSE:
+			form.style.visibility = 'hidden';
+			play_pause.innerHTML = '<i class="fa fa-play"></i>';
+			play_pause.className = 'pure-button button-start';
+			reset.innerHTML = '<i class="fa fa-stop"></i>';
+			reset.className = 'pure-button button-stop';
+		break;
+	}
+}
+
+function click_reset( event ) {
 	if ( event ) event.preventDefault();
-	var risposta = document.getElementById( 'risposta' );
-	if ( button.className.indexOf( 'start' ) == -1 ) {
+	if ( status != STATUS.STOP ) {
+		status = STATUS.STOP;
 		stop();
-		risposta.innerHTML = '';
-		button.className = 'pure-button button-start';
-		button.value = 'Inizia!';
-	} else {
-		risposta.innerHTML ='<div id="operazione"><span id="x"></span> X <span id="y"></span> = <span id="xy"></span></div><div id="progress"></div>';
-		button.className = 'pure-button button-stop';
-		button.value = 'Fermati!';
-		start();
+		update_buttons();
+	}
+}
+
+function click_play_pause( event ) {
+	if ( event ) event.preventDefault();
+	switch ( status ) {
+		case STATUS.PLAY:
+			status = STATUS.PAUSE;
+			update_buttons();
+		break;
+		case STATUS.PAUSE:
+			status = STATUS.PLAY;
+			update_buttons();
+			step();
+		break;
+		case STATUS.STOP:
+			status = STATUS.PLAY;
+			start();
+			update_buttons();
+		break;
 	}
 }
 
@@ -64,10 +126,15 @@ function shuffle( array ) {
 	}
 }
 
-function setup_progress( bidi ) {
+function setup_risposta() {
+	risposta.innerHTML = '<div id="operazione"><span id="x"></span> X <span id="y"></span> = <span id="xy"></span></div><div id="progress"></div>';
+	term_x = document.getElementById( 'x' );
+	term_y = document.getElementById( 'y' );
+	term_xy = document.getElementById( 'xy' );
 	var progress = document.getElementById( 'progress' );
 	var table = document.createElement( 'table' );
-	if ( bidi ) {
+	console.log( 'len', pairs.length );
+	if ( pairs.length > 10 ) {
 		for ( var i = 1; i <= 10; i++ ) {
 			var tr = document.createElement( 'tr' );
 			for ( var j = 1; j <= 10; j++ ) {
@@ -93,17 +160,36 @@ function setup_progress( bidi ) {
 
 function stop() {
 	console.log( 'stop' );
-	running = false;
-	window.clearTimeout( time_out_id );
+	status = STATUS.STOP;
 	pairs = [];
+	window.clearTimeout( time_out_id );
+}
+
+function speak( text, next ) {
+	if ( status != STATUS.PLAY ) return;
+	if ( voce == -2 ) next();
+	else {
+		window.speechSynthesis.cancel();
+		var ssu = new SpeechSynthesisUtterance( text );
+		ssu.voice = voices[ voce ];
+		window.speechSynthesis.speak( ssu );
+		function waitssu() {
+			if ( ! window.speechSynthesis.speaking ) {
+				next();
+				return;
+			}
+			window.setTimeout( waitssu, 200 );
+		}
+		waitssu();
+	}
 }
 
 function step() {
-	if ( ! running ) return;
+	if ( status != STATUS.PLAY ) return;
 	console.log( 'step ' + index );
 
 	if ( index >= pairs.length ) {
-		toggle();
+		click_play_pause();
 		return;
 	}
 
@@ -113,27 +199,8 @@ function step() {
 	term_y.innerHTML = y;
 	term_xy.innerHTML = '';
 
-	function speak( text, next ) {
-		if ( ! running ) return;
-		if ( voce == -2 ) next();
-		else {
-			window.speechSynthesis.cancel();
-			var ssu = new SpeechSynthesisUtterance( text );
-			ssu.voice = voices[ voce ];
-			window.speechSynthesis.speak( ssu );
-			function waitssu() {
-				if ( ! window.speechSynthesis.speaking ) {
-					next();
-					return;
-				}
-				window.setTimeout( waitssu, 200 );
-			}
-			waitssu();
-		}
-	}
-
 	function result() {
-		if ( ! running ) return;
+		if ( status != STATUS.PLAY ) return;
 		time_out_id = window.setTimeout( function() {
 			var td = document.getElementById( 'rc-' + x + '-' + y )
 			if ( td ) td.className = 'done';
@@ -148,21 +215,16 @@ function step() {
 
 function start() {
 	console.log( 'start' );
-	running = true;
-
-	var form = document.getElementById( 'form' );
+	status = STATUS.PLAY;
 
 	var quale = parseInt( form.quale.value );
-	if ( quale == 0 ) {
+	if ( quale == 0 )
 		for ( var i = 1; i <= 10; i++ )
 			for ( var j = 1; j <= 10; j++ )
 				pairs.push( [ i, j ] );
-		setup_progress( true );
-	} else {
+	else
 		for ( var j = 1; j <= 10; j++ )
 			pairs.push( [ quale, j ] );
-		setup_progress( false );
-	}
 
 	var come = parseInt( form.come.value );
 	if ( come == -1 )
@@ -170,7 +232,7 @@ function start() {
 	else if ( come == 0 )
 		shuffle( pairs );
 
-	var pausa_risposta, pausa_step, velocita = parseInt( form.velocita.value );
+	var velocita = parseInt( form.velocita.value );
 	if ( velocita == 0 )
 		pausa_risposta = 2000;
 	else if ( velocita == 1 )
@@ -178,7 +240,6 @@ function start() {
 	else
 		pausa_risposta = 500;
 
-	var voce;
 	if ( voices ) {
 		voce = parseInt( form.voce.value );
 		if ( voce == - 1 ) voce = Math.floor( Math.random() * voices.length );
@@ -191,11 +252,9 @@ function start() {
 		pausa_step = 500;
 	}
 
-	var term_x = document.getElementById( 'x' );
-	var term_y = document.getElementById( 'y' );
-	var term_xy = document.getElementById( 'xy' );
+	setup_risposta();
 
-	var index = 0;
+	index = 0;
 	step();
 }
 

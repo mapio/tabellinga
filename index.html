@@ -6,6 +6,7 @@
 	<meta name="description" content="tabelline">
 	<title>Tabellinga</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="app.css">
 	<script src="app.js"></script>
 </head>
@@ -16,10 +17,9 @@
 <div class="pure-g"><div class="pure-u-1 l-box">
 
 	<h1>Tabellinga
-
 	<a href="https://twitter.com/intent/tweet?button_hashtag=tabellinga&amp;text=Impara%20le%20tabelline%20con" class="twitter-hashtag-button" data-lang="it"  data-related="Mapio" data-url="http://tabellin.ga/">Tweet #tabellinga</a>
-
 	</h1>
+
 	<form id="form" action="#" class="pure-form"><fieldset>
 
 		<label for="quale">Quale tabellina:
@@ -59,8 +59,17 @@
 		</select>
 		</label>
 		</span>
-		<input type="button" id="button" class="pure-button pure-button-disabled" value="inizia!"/>
 	</fieldset></form>
+	<div id="buttons">
+		<button id="reset" class="pure-button pure-button-disabled">
+			<i class="fa fa-spinner fa-pulse"></i>
+		</button>
+		<button id="play_pause" class="pure-button pure-button-disabled">
+			<i class="fa fa-spinner fa-pulse"></i>
+		</button>
+	</div>
+
+
 
 	<div id="risposta"></div>
 
