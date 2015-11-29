@@ -8,7 +8,7 @@ var form = document.getElementById( 'form' );
 var voices;
 
 var STATUS = { EMPTY: 0, STOP: 1, PLAY: 2, PAUSE: 3 }; 
-var status = STATUS.STOP;
+var status = STATUS.EMPTY;
 
 var time_out_id, term_x, term_y, term_xy, index, pausa_risposta, pausa_step, voce;
 var pairs = [];
@@ -49,11 +49,10 @@ function setup_ui() {
 	play_pause.addEventListener( 'click', click_play_pause, false );
 	reset.addEventListener( 'click', click_reset, false );
 	status = STATUS.STOP;
-	update_buttons();
+	update_ui();
 }
 
-function update_buttons() {
-	console.log( 'status ' + status );
+function update_ui() {
 	switch ( status ) {
 		case STATUS.EMPTY:
 			risposta.innerHTML = '';
@@ -93,7 +92,7 @@ function click_reset( event ) {
 	if ( status != STATUS.STOP ) {
 		status = STATUS.STOP;
 		stop();
-		update_buttons();
+		update_ui();
 	}
 }
 
@@ -102,17 +101,17 @@ function click_play_pause( event ) {
 	switch ( status ) {
 		case STATUS.PLAY:
 			status = STATUS.PAUSE;
-			update_buttons();
+			update_ui();
 		break;
 		case STATUS.PAUSE:
 			status = STATUS.PLAY;
-			update_buttons();
+			update_ui();
 			step();
 		break;
 		case STATUS.STOP:
 			status = STATUS.PLAY;
 			start();
-			update_buttons();
+			update_ui();
 		break;
 	}
 }
@@ -133,7 +132,6 @@ function setup_risposta() {
 	term_xy = document.getElementById( 'xy' );
 	var progress = document.getElementById( 'progress' );
 	var table = document.createElement( 'table' );
-	console.log( 'len', pairs.length );
 	if ( pairs.length > 10 ) {
 		for ( var i = 1; i <= 10; i++ ) {
 			var tr = document.createElement( 'tr' );
