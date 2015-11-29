@@ -1,0 +1,40 @@
+.pure-g > div {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.l-box {
+	padding: 5em;
+}
+.button-start {
+	background: rgb(28, 184, 65); /* this is a green */
+}
+.button-stop {
+	background: rgb(202, 60, 60); /* this is a maroon */
+}
+#tabellina {
+	font-size: xx-large;
+}
+#twitta {
+	position: absolute;
+	top: 90%;
+}
+#progresso {
+	position: absolute;
+	left: 80%;
+}
+#progress table {
+	background-color: transparent;
+	border: 1px solid black;
+}
+#progress td {
+	width: 1em;
+}
+#progress .done {
+	background-color: green;
+}
+
+
+.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}
+
+
