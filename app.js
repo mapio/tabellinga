@@ -1,9 +1,11 @@
 function onload() {
 
-var button = document.getElementById( 'button' );
 var running = false;
-
+var pairs = [];
+var time_out_id;
 var voices;
+var button = document.getElementById( 'button' );
+
 if ( 'speechSynthesis' in window ) {
 	window.speechSynthesis.onvoiceschanged = get_voices;
 	function get_voices() {
@@ -34,20 +36,18 @@ if ( 'speechSynthesis' in window ) {
 	document.getElementById( 'select_voce' ).remove();
 	button.addEventListener( 'click', toggle, false );
 	button.className = 'pure-button button-start';
-
 }
 
 function toggle( event ) {
 	if ( event ) event.preventDefault();
-	var tabellina = document.getElementById( 'tabellina' );
+	var risposta = document.getElementById( 'risposta' );
 	if ( button.className.indexOf( 'start' ) == -1 ) {
 		stop();
-		tabellina.innerHTML = '';
+		risposta.innerHTML = '';
 		button.className = 'pure-button button-start';
 		button.value = 'Inizia!';
 	} else {
-		tabellina.innerHTML =
-			'<span id="x"></span> X <span id="y"></span> = <span id="xy"></span>';
+		risposta.innerHTML ='<div id="operazione"><span id="x"></span> X <span id="y"></span> = <span id="xy"></span></div><div id="progress"></div>';
 		button.className = 'pure-button button-stop';
 		button.value = 'Fermati!';
 		start();
@@ -65,7 +65,6 @@ function shuffle( array ) {
 
 function setup_progress( bidi ) {
 	var progress = document.getElementById( 'progress' );
-	if ( progress.firstChild ) progress.firstChild.remove();
 	var table = document.createElement( 'table' );
 	if ( bidi ) {
 		for ( var i = 1; i <= 10; i++ ) {
@@ -90,14 +89,6 @@ function setup_progress( bidi ) {
 	}
 	progress.appendChild( table );
 }
-
-function update_progress( x, y ) {
-	var td = document.getElementById( 'rc-' + x + '-' + y );
-	td.className = 'done';
-}
-
-var pairs = [];
-var time_out_id;
 
 function stop() {
 	console.log( 'stop' );
@@ -137,7 +128,6 @@ function start() {
 		pausa = 1000;
 	else
 		pausa = 500;
-	console.log( 'pausa ' + pausa );
 
 	var voce;
 	if ( voices ) {
@@ -153,44 +143,52 @@ function start() {
 	var index = 0;
 	function step() {
 		if ( ! running ) return;
+		console.log( 'step ' + index );
+
 		if ( index >= pairs.length ) {
 			toggle();
 			return;
 		}
+
 		var x = pairs[ index ][ 0 ];
 		var y = pairs[ index ][ 1 ];
 		term_x.innerHTML = x;
 		term_y.innerHTML = y;
 		term_xy.innerHTML = '';
-		update_progress( x, y );
+
+		function speak( text, onend ) {
+			if ( ! running ) return;
+			if ( voce == -2 ) onend();
+			else {
+				window.speechSynthesis.cancel();
+				var ssu = new SpeechSynthesisUtterance( text );
+				ssu.voice = voices[ voce ];
+				window.speechSynthesis.speak( ssu );
+				var wc = 0;
+				function waitssu() {
+					console.log( 'waiting ' + wc++ );
+					if ( ! window.speechSynthesis.speaking ) {
+						onend();
+						return;
+					}
+					window.setTimeout( waitssu, 200 );
+				}
+				waitssu();
+			}
+		}
+
 		function result() {
 			if ( ! running ) return;
-			console.log( 'result' );
 			time_out_id = window.setTimeout( function() {
-				console.log( 'now' );
+				document.getElementById( 'rc-' + x + '-' + y ).className = 'done';
 				term_xy.innerHTML = x * y;
 				index++;
-				if ( voce != -2 ) {
-					var msg = new SpeechSynthesisUtterance( x * y );
-					msg.voice = voices[ voce ];
-					msg.onend = function( event ) {
-						if ( ! running ) return;
-						window.setTimeout( step, 500 );
-					};
-					window.speechSynthesis.speak( msg );
-				} else window.setTimeout( step, 500 );
+				speak( x * y, function() { window.setTimeout( step, 500 ); } );
 			}, pausa );
 		}
-		if ( voce != -2 ) {
-			if ( ! running ) return;
-			var msg = new SpeechSynthesisUtterance( x + ' per ' + y );
-			msg.voice = voices[ voce ];
-			msg.onend = function( event ) {
-				if ( ! running ) return;
-				result();
-			};
-			window.speechSynthesis.speak( msg );
-		} else result();
+
+		speak( x + ' per ' + y, result );
+
 	}
 	step();
 }

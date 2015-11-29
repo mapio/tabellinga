@@ -12,18 +12,11 @@
 .button-stop {
 	background: rgb(202, 60, 60); /* this is a maroon */
 }
-#tabellina {
+#operazione {
 	font-size: xx-large;
 }
-#twitta {
-	position: absolute;
-	top: 90%;
-}
-#progresso {
-	position: absolute;
-	left: 80%;
-}
 #progress table {
+	margin-top: 2em;
 	background-color: transparent;
 	border: 1px solid black;
 }
