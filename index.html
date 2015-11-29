@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="it">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="tabelline">
+	<title>Tabelline</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css">
+	<style>
+		.pure-g > div {
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+		.l-box {
+			padding: 5em;
+		}
+		.button-start {
+			background: rgb(28, 184, 65); /* this is a green */
+		}
+		.button-stop {
+			background: rgb(202, 60, 60); /* this is a maroon */
+		}
+		#tabellina {
+			font-size: xx-large;
+		}
+		#twitta {
+			position: absolute;
+			top: 90%;
+		}
+	</style>
+	<script>function onload(){
+
+		var button = document.getElementById( 'button' );
+		var running = false;
+
+		var voices;
+		if ( 'speechSynthesis' in window ) {
+			window.speechSynthesis.onvoiceschanged = get_voices;
+			function get_voices() {
+				if ( voices && voices.length > 0 ) return;
+				voices = window.speechSynthesis.getVoices().filter(
+						function( voice ) {
+							return (
+								voice.lang == "it-IT" && // italian
+								voice.name.indexOf( 'Google' ) == -1 && // skip extra Chrome voices
+								voice.voiceURI.indexOf( 'premium' ) == -1 // skip extra Safari voices*/
+							);
+						}
+				);
+				console.log( 'got ' + voices.length + ' voice(s)' );
+				var select = document.getElementById( 'voce' );
+				for ( var i = 0; i < voices.length; i++ ) {
+					var option = document.createElement( 'option' );
+					option.setAttribute( 'value', i );
+					option.innerHTML = voices[ i ].name;
+					select.appendChild( option );
+				}
+				button.addEventListener( 'click', toggle, false );
+				button.className = 'pure-button button-start';
+				console.log( 'voice, activated' );
+			};
+			get_voices();
+		} else {
+			document.getElementById( 'select_voce' ).remove();
+			button.addEventListener( 'click', toggle, false );
+			button.className = 'pure-button button-start';
+
+		}
+
+		function toggle( event ) {
+			if ( event ) event.preventDefault();
+			var tabellina = document.getElementById( 'tabellina' );
+			if ( button.className.indexOf( 'start' ) == -1 ) {
+				stop();
+				tabellina.innerHTML = '';
+				button.className = 'pure-button button-start';
+				button.value = 'Inizia!';
+			} else {
+				tabellina.innerHTML =
+					'<span id="x"></span> X <span id="y"></span> = <span id="xy"></span>';
+				button.className = 'pure-button button-stop';
+				button.value = 'Fermati!';
+				start();
+			}
+		}
+
+		function shuffle( array ) {
+			for ( var i = array.length - 1; i >= 0; i-- ) {
+				var j = Math.floor( Math.random() * ( 1 + i ) );
+				var t = array[ i ];
+				array[ i ] = array[ j ];
+				array[ j ] = t;
+			}
+		}
+
+		function pa( arr ) {
+			for ( var i = 0; i < arr.length; i++ )
+				console.log( arr[ i ][ 0 ], arr[ i ][ 1 ] );
+		}
+
+		var pairs = [];
+		var time_out_id;
+
+		function stop() {
+			console.log( 'stop' );
+			running = false;
+			window.clearTimeout( time_out_id );
+			pairs = [];
+		}
+
+		function start() {
+			console.log( 'start' );
+			running = true;
+
+			var form = document.getElementById( 'form' );
+
+			var quale = parseInt( form.quale.value );
+			if ( quale == 0 )
+				for ( var i = 1; i <= 10; i++ )
+					for ( var j = 1; j <= 10; j++ )
+						pairs.push( [ i, j ] );
+			else
+				for ( var j = 1; j <= 10; j++ )
+					pairs.push( [ quale, j ] );
+
+			var come = parseInt( form.come.value );
+			if ( come == -1 )
+				pairs.reverse();
+			else if ( come == 0 )
+				shuffle( pairs );
+
+			var pausa, velocita = parseInt( form.velocita.value );
+			if ( velocita == 0 )
+				pausa = 2000;
+			else if ( velocita == 1 )
+				pausa = 1000;
+			else
+				pausa = 500;
+			console.log( 'pausa ' + pausa );
+
+			var voce;
+			if ( voices ) {
+				voce = parseInt( form.voce.value );
+				if ( voce == - 1 ) voce = Math.floor( Math.random() * voices.length );
+			} else
+				voce = -2;
+
+			var term_x = document.getElementById( 'x' );
+			var term_y = document.getElementById( 'y' );
+			var term_xy = document.getElementById( 'xy' );
+
+			var index = 0;
+			function step() {
+				if ( ! running ) return;
+				if ( index >= pairs.length ) {
+					toggle();
+					return;
+				}
+				var x = pairs[ index ][ 0 ];
+				var y = pairs[ index ][ 1 ];
+				term_x.innerHTML = x;
+				term_y.innerHTML = y;
+				term_xy.innerHTML = '';
+				function result() {
+					if ( ! running ) return;
+					console.log( 'result' );
+					time_out_id = window.setTimeout( function() {
+						console.log( 'now' );
+						term_xy.innerHTML = x * y;
+						index++;
+						if ( voce != -2 ) {
+							var msg = new SpeechSynthesisUtterance( x * y );
+							msg.voice = voices[ voce ];
+							msg.onend = function( event ) {
+								if ( ! running ) return;
+								window.setTimeout( step, 500 );
+							};
+							window.speechSynthesis.speak( msg );
+						} else window.setTimeout( step, 500 );
+					}, pausa );
+				}
+				if ( voce != -2 ) {
+					if ( ! running ) return;
+					var msg = new SpeechSynthesisUtterance( x + ' per ' + y );
+					msg.voice = voices[ voce ];
+					msg.onend = function( event ) {
+						if ( ! running ) return;
+						result();
+					};
+					window.speechSynthesis.speak( msg );
+				} else result();
+			}
+			step();
+		}
+
+	}</script>
+</head>
+<body onload="onload()">
+
+<a href="http://github.com/mapio" class="github-corner"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+<div class="pure-g"><div class="pure-u-1 l-box">
+
+	<h1>Tabelline</h1>
+	<form id="form" action="#" class="pure-form"><fieldset>
+		<legend>Scegli che esercizio vuoi fare</legend>
+		<label for"quale">Quale tabellina:
+		<select id="quale" name="quale">
+			<option value="0">tutte</option>
+			<option value="1">dell'1</option>
+			<option value="2">del 2</option>
+			<option value="3">del 3</option>
+			<option value="4">del 4</option>
+			<option value="5">del 5</option>
+			<option value="6">del 6</option>
+			<option value="7">del 7</option>
+			<option value="8">dell'8</option>
+			<option value="9">del 9</option>
+			<option value="10">del 10</option>
+		</select>
+		</label>
+		<label for="come">in che ordine:
+		<select id="come" name="come">
+			<option value="-1">decrescente</option>
+			<option value="0" selected="selected">casuale</option>
+			<option value="1">crescente</option>
+		</select>
+		</label>
+		<label for="velocita">a che velocità:
+		<select id="velocita" name="velocita">
+			<option value="0">piano</option>
+			<option value="1" selected="selected">normale</option>
+			<option value="2">veloce</option>
+		</select>
+		</label>
+		<span id="select_voce">
+		<label for="voce">con che voce:
+		<select id="voce" name="voce">
+			<option value="-2">nessuna</option>
+			<option value="-1" selected="selected">casuale</option>
+		</select>
+		</label>
+		</span>
+		<input type="button" id="button" class="pure-button pure-button-disabled" value="inizia!"/>
+	</fieldset></form>
+
+	<h1>Rispondi</h1>
+	<div id="tabellina"></div>
+
+<div id="twitta">
+<a href="https://twitter.com/intent/tweet?button_hashtag=tabellinga&text=Imparare%20le%20tabelline%20con" class="twitter-hashtag-button" data-lang="it"  data-related="#mapio" data-url="http://tabellin.ga/">Tweet #tabellinga</a>
+</div>
+<script>
+	!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+</script>
+
+</div></div></body></html>
