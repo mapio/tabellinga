@@ -121,13 +121,13 @@ function start() {
 	else if ( come == 0 )
 		shuffle( pairs );
 
-	var pausa, velocita = parseInt( form.velocita.value );
+	var pausa_risposta, pausa_step, velocita = parseInt( form.velocita.value );
 	if ( velocita == 0 )
-		pausa = 2000;
+		pausa_risposta = 2000;
 	else if ( velocita == 1 )
-		pausa = 1000;
+		pausa_risposta = 1000;
 	else
-		pausa = 500;
+		pausa_risposta = 500;
 
 	var voce;
 	if ( voices ) {
@@ -135,6 +135,12 @@ function start() {
 		if ( voce == - 1 ) voce = Math.floor( Math.random() * voices.length );
 	} else
 		voce = -2;
+	if ( voce == -2 ) {
+		pausa_risposta += 1000;
+		pausa_step = 1000;
+	} else {
+		pausa_step = 500;
+	}
 
 	var term_x = document.getElementById( 'x' );
 	var term_y = document.getElementById( 'y' );
@@ -164,9 +170,7 @@ function start() {
 				var ssu = new SpeechSynthesisUtterance( text );
 				ssu.voice = voices[ voce ];
 				window.speechSynthesis.speak( ssu );
-				var wc = 0;
 				function waitssu() {
-					console.log( 'waiting ' + wc++ );
 					if ( ! window.speechSynthesis.speaking ) {
 						onend();
 						return;
@@ -180,11 +184,12 @@ function start() {
 		function result() {
 			if ( ! running ) return;
 			time_out_id = window.setTimeout( function() {
-				document.getElementById( 'rc-' + x + '-' + y ).className = 'done';
+				var td = document.getElementById( 'rc-' + x + '-' + y )
+				if ( td ) td.className = 'done';
 				term_xy.innerHTML = x * y;
 				index++;
-				speak( x * y, function() { window.setTimeout( step, 500 ); } );
-			}, pausa );
+				speak( x * y, function() { window.setTimeout( step, pausa_step ); } );
+			}, pausa_risposta );
 		}
 
 		speak( x + ' per ' + y, result );
