@@ -57,7 +57,7 @@ function update_ui() {
 	switch ( status ) {
 		case STATUS.EMPTY:
 			risposta.innerHTML = '';
-			values.style.visibility = 'visible';
+			values.style.display = 'block';
 			play_pause.innerHTML = '<i class="fa fa-spinner fa-pulse"></i>';
 			play_pause.className = 'pure-button pure-button-disabled';
 			reset.innerHTML = '<i class="fa fa-spinner fa-pulse"></i>';
@@ -65,21 +65,21 @@ function update_ui() {
 		break;
 		case STATUS.STOP:
 			risposta.innerHTML = '';
-			values.style.visibility = 'visible';
+			values.style.display = 'block';
 			play_pause.innerHTML = '<i class="fa fa-play"></i>';
 			play_pause.className = 'pure-button button-start';
 			reset.innerHTML = '<i class="fa fa-stop"></i>';
 			reset.className = 'pure-button pure-button-disabled';
 		break;
 		case STATUS.PLAY:
-			values.style.visibility = 'hidden';
+			values.style.display = 'none';
 			play_pause.innerHTML = '<i class="fa fa-pause"></i>';
 			play_pause.className = 'pure-button button-start';
 			reset.innerHTML = '<i class="fa fa-stop"></i>';
 			reset.className = 'pure-button button-stop';
 		break;
 		case STATUS.PAUSE:
-			values.style.visibility = 'hidden';
+			values.style.display = 'none';
 			play_pause.innerHTML = '<i class="fa fa-play"></i>';
 			play_pause.className = 'pure-button button-start';
 			reset.innerHTML = '<i class="fa fa-stop"></i>';
