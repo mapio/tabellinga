@@ -4,7 +4,8 @@
 	box-sizing: border-box;
 }
 .l-box {
-	padding: 5em;
+	padding-left: 5em;
+	padding-right: 5em;
 }
 .button-start {
 	background: lightgreen; /* this is a green */
