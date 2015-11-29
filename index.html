@@ -22,52 +22,55 @@
 
 	<form id="form" action="#" class="pure-form"><fieldset>
 
-		<label for="quale">Quale tabellina:
-		<select id="quale" name="quale">
-			<option value="0">tutte</option>
-			<option value="1">dell'1</option>
-			<option value="2">del 2</option>
-			<option value="3">del 3</option>
-			<option value="4">del 4</option>
-			<option value="5">del 5</option>
-			<option value="6">del 6</option>
-			<option value="7">del 7</option>
-			<option value="8">dell'8</option>
-			<option value="9">del 9</option>
-			<option value="10">del 10</option>
-		</select>
-		</label>
-		<label for="come">in che ordine:
-		<select id="come" name="come">
-			<option value="-1">decrescente</option>
-			<option value="0" selected="selected">casuale</option>
-			<option value="1">crescente</option>
-		</select>
-		</label>
-		<label for="velocita">a che velocità:
-		<select id="velocita" name="velocita">
-			<option value="0">piano</option>
-			<option value="1" selected="selected">normale</option>
-			<option value="2">veloce</option>
-		</select>
-		</label>
-		<span id="select_voce">
-		<label for="voce">con che voce:
-		<select id="voce" name="voce">
-			<option value="-2">nessuna</option>
-			<option value="-1" selected="selected">casuale</option>
-		</select>
-		</label>
+		<span id="buttons">
+			<button id="reset" class="pure-button pure-button-disabled">
+				<i class="fa fa-spinner fa-pulse"></i>
+			</button>
+			<button id="play_pause" class="pure-button pure-button-disabled">
+				<i class="fa fa-spinner fa-pulse"></i>
+			</button>
+		</span>
+		&nbsp;
+		<span id="values">
+			<label for="quale">Quale tabellina:
+			<select id="quale" name="quale">
+				<option value="0">tutte</option>
+				<option value="1">dell'1</option>
+				<option value="2">del 2</option>
+				<option value="3">del 3</option>
+				<option value="4">del 4</option>
+				<option value="5">del 5</option>
+				<option value="6">del 6</option>
+				<option value="7">del 7</option>
+				<option value="8">dell'8</option>
+				<option value="9">del 9</option>
+				<option value="10">del 10</option>
+			</select>
+			</label>
+			<label for="come">in che ordine:
+			<select id="come" name="come">
+				<option value="-1">decrescente</option>
+				<option value="0" selected="selected">casuale</option>
+				<option value="1">crescente</option>
+			</select>
+			</label>
+			<label for="velocita">a che velocità:
+			<select id="velocita" name="velocita">
+				<option value="0">piano</option>
+				<option value="1" selected="selected">normale</option>
+				<option value="2">veloce</option>
+			</select>
+			</label>
+			<span id="select_voce">
+			<label for="voce">con che voce:
+			<select id="voce" name="voce">
+				<option value="-2">nessuna</option>
+				<option value="-1" selected="selected">casuale</option>
+			</select>
+			</label>
+			</span>
 		</span>
 	</fieldset></form>
-	<div id="buttons">
-		<button id="reset" class="pure-button pure-button-disabled">
-			<i class="fa fa-spinner fa-pulse"></i>
-		</button>
-		<button id="play_pause" class="pure-button pure-button-disabled">
-			<i class="fa fa-spinner fa-pulse"></i>
-		</button>
-	</div>
 
 	<div id="risposta"></div>
 
