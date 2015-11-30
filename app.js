@@ -19,6 +19,8 @@ function keen_post( kind, data ) {
 	} );
 }
 
+keep_post( 'hit', {} );
+
 /* Tabellinga */
 
 var play_pause = document.getElementById( 'play_pause' );
