@@ -1,5 +1,22 @@
 function onload() {
 
+/* Keen.io */
+
+var keen_client = new Keen( {
+	projectId: "565c286396773d49f93fde86",
+	writeKey: "8164e5273cdbeb7cd9ae011c733cd9dca2d5a826bbaefde8bbdf74cc092f358cd13fb135e13be0c42882be40266b6b869bb921be77ab80ecb50d37f7dc3fcf9bd497806f3f9d51f46a0be9c5bfe181918708ec3c68f8fc6dd99d486d34286f52aa3b2b3cf77cfd85bf2977174e1dae7d",
+	readKey: "ce5dbb62eb75724211fc11b21f78d6b4ababdc742ed193da1d5d95c234408792eb5e7f63fdfb9b03a4f2c620fb4f52121092332abf1edafea5191fc31fad8cab76082e0675340b97cbe1e3fc1f9fad325ad846320528bb3574aa7fc7182aafc77e1e23f980c0f8d8ba77d61dc231342a"
+} );
+
+function keen_post( collection, data ) {
+	keen_client.addEvent( collection, data, function( err, res ) {
+		if ( err ) console.log( 'keen_err: ' + err );
+		else console.log( 'keen_ok: ' + res );
+	} );
+}
+
+/* Tabellinga */
+
 var play_pause = document.getElementById( 'play_pause' );
 var reset = document.getElementById( 'reset' );
 var risposta = document.getElementById( 'risposta' );
@@ -200,6 +217,11 @@ function step() {
 
 	function result() {
 		if ( status != STATUS.PLAY ) return;
+		keen_post( 'result', {
+			'x': x,
+			'y': y,
+			'm': pairs.length > 10 ? 'true' : 'false'
+		} );
 		time_out_id = window.setTimeout( function() {
 			var td = document.getElementById( 'rc-' + x + '-' + y )
 			if ( td ) td.className = 'done';
@@ -251,6 +273,12 @@ function start() {
 		pausa_step = 500;
 	}
 
+	keen_post( 'start', {
+		'quale': quale,
+		'come': come,
+		'velocita': velocita,
+		'voce': voce
+	} );
 	setup_risposta();
 
 	index = 0;
