@@ -19,7 +19,7 @@ function keen_post( kind, data ) {
 	} );
 }
 
-keep_post( 'hit', {} );
+keen_post( 'hit', {} );
 
 /* Tabellinga */
 
