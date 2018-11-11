@@ -1,6 +1,6 @@
 function onload() {
 
-/* Keen.io */
+/* Keen.io 
 
 var keen_session = new Date().valueOf(); // poor man solution
 
@@ -20,6 +20,7 @@ function keen_post( kind, data ) {
 }
 
 keen_post( 'hit', {} );
+*/
 
 /* Tabellinga */
 
