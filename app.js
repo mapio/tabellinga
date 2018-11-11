@@ -126,9 +126,11 @@ function click_play_pause( event ) {
 	switch ( status ) {
 		case STATUS.PLAY:
 			status = STATUS.PAUSE;
-			// keen_post( 'pause', {
+			/*
+			keen_post( 'pause', {
 				'index': index
 			} );
+			*/
 			update_ui();
 		break;
 		case STATUS.PAUSE:
@@ -304,7 +306,7 @@ function start() {
 		'voce': voce
 	} );
 	*/
-	
+
 	setup_risposta();
 
 	index = 0;
