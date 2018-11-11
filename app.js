@@ -126,16 +126,18 @@ function click_play_pause( event ) {
 	switch ( status ) {
 		case STATUS.PLAY:
 			status = STATUS.PAUSE;
-			keen_post( 'pause', {
+			// keen_post( 'pause', {
 				'index': index
 			} );
 			update_ui();
 		break;
 		case STATUS.PAUSE:
 			status = STATUS.PLAY;
+			/*
 			keen_post( 'restart', {
 				'index': index
 			} );
+			*/
 			update_ui();
 			step();
 		break;
@@ -192,9 +194,11 @@ function stop() {
 	status = STATUS.STOP;
 	pairs = [];
 	window.clearTimeout( time_out_id );
+	/*
 	keen_post( 'stop', {
 		'index': index
 	} );
+	*/
 	update_ui();
 }
 
@@ -292,13 +296,15 @@ function start() {
 		pausa_step = 500;
 	}
 
+	/*
 	keen_post( 'start', {
 		'quale': quale,
 		'come': come,
 		'velocita': velocita,
 		'voce': voce
 	} );
-
+	*/
+	
 	setup_risposta();
 
 	index = 0;
